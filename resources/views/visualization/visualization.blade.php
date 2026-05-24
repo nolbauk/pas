@@ -9,7 +9,7 @@
     <!-- Total Data Card -->
     <div class="glass rounded-2xl p-6 hover-glow relative overflow-hidden group">
         <div class="absolute inset-0 bg-gradient-to-br from-cyan-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-        <p class="text-gray-300 font-bold mb-2 uppercase tracking-tight text-xs">Total Data Training</p>
+        <p class="text-gray-300 font-bold mb-2 uppercase tracking-tight text-xs">Total Data Testing</p>
         <h2 class="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">{{ number_format($totalData) }}</h2>
     </div>
 
@@ -144,8 +144,8 @@
         const positiveCount = {{ $positiveCount }};
         const negativeCount = {{ $negativeCount }};
         const total = positiveCount + negativeCount;
-        const posPercent = total > 0 ? Math.round((positiveCount / total) * 100) : 0;
-        const negPercent = total > 0 ? Math.round((negativeCount / total) * 100) : 0;
+        const posPercent = total > 0 ? ((positiveCount / total) * 100).toFixed(1) : 0;
+        const negPercent = total > 0 ? ((negativeCount / total) * 100).toFixed(1) : 0;
 
         new Chart(ctx, {
             type: 'doughnut',

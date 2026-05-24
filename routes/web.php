@@ -34,11 +34,8 @@ Route::middleware('auth')->group(function () {
         Route::post('/upload-dataset', [DatasetController::class, 'upload'])->name('dataset.upload');
         Route::delete('/upload-dataset/clear', [DatasetController::class, 'clear'])->name('dataset.clear');
         
-        Route::get('/preprocessing', [PreprocessingController::class, 'index'])->name('preprocessing.index');
-        Route::post('/preprocessing/process', [PreprocessingController::class, 'process'])->name('preprocessing.process');
-        
-        Route::get('/training', [TrainingController::class, 'index'])->name('training.index');
-        Route::post('/training/process', [TrainingController::class, 'process'])->name('training.process');
+        Route::get('/train-model', [PreprocessingController::class, 'index'])->name('train-model.index');
+        Route::post('/train-model/process', [PreprocessingController::class, 'process'])->name('train-model.process');
         
         Route::delete('/testing/clear', [TestingController::class, 'clear'])->name('testing.clear');
     });

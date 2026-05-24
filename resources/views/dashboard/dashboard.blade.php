@@ -45,17 +45,144 @@
                 "{{ $conclusionText }}"
             </p>
 
-            <!-- Ratio Bar -->
-            <div class="space-y-3">
-                <div class="flex justify-between items-end">
-                    <span class="text-emerald-400 font-bold text-sm uppercase tracking-widest">Positif ({{ $posPercent }}%)</span>
-                    <span class="text-red-400 font-bold text-sm uppercase tracking-widest">Negatif ({{ $negPercent }}%)</span>
+            <!-- Futuristic Sentiment Ratio Bar -->
+            <div class="ratio-wrapper relative rounded-2xl p-5 border border-cyan-500/15 overflow-hidden"
+                 style="background: linear-gradient(135deg, rgba(6,182,212,0.04) 0%, rgba(15,23,42,0.6) 50%, rgba(239,68,68,0.04) 100%);">
+
+                <!-- Animated shimmer sweep -->
+                <div class="absolute inset-0 ratio-shimmer-sweep pointer-events-none"></div>
+
+                <!-- Top Row: Large Percentage Readouts -->
+                <div class="relative z-10 flex justify-between items-end mb-4">
+                    <!-- Positive Side -->
+                    <div class="flex items-baseline gap-3">
+                        <div class="flex flex-col">
+                            <span class="text-[15px] font-black uppercase tracking-[0.25em] text-emerald-400/100 mb-0.5 font-mono">Positif</span>
+                            <div class="flex items-baseline gap-1">
+                                <span class="text-3xl font-black text-emerald-400 font-mono leading-none"
+                                      style="text-shadow: 0 0 20px rgba(52,211,153,0.4), 0 0 40px rgba(52,211,153,0.15);">
+                                    {{ $posPercent }}
+                                </span>
+                                <span class="text-emerald-400/60 font-black text-sm font-mono">%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Center Label -->
+                    <div class="flex flex-col items-center gap-1 absolute left-1/2 -translate-x-1/2 bottom-0">
+                        <span class="text-[20px] font-black uppercase tracking-[0.3em] text-cyan-500/100 font-mono">Ratio</span>
+                    </div>
+
+                    <!-- Negative Side -->
+                    <div class="flex items-baseline gap-3">
+                        <div class="flex flex-col items-end">
+                            <span class="text-[15px] font-black uppercase tracking-[0.25em] text-red-400/100 mb-0.5 font-mono">Negatif</span>
+                            <div class="flex items-baseline gap-1">
+                                <span class="text-3xl font-black text-red-400 font-mono leading-none"
+                                      style="text-shadow: 0 0 20px rgba(248,113,113,0.4), 0 0 40px rgba(248,113,113,0.15);">
+                                    {{ $negPercent }}
+                                </span>
+                                <span class="text-red-400/60 font-black text-sm font-mono">%</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="h-4 w-full bg-slate-900/50 rounded-full overflow-hidden border border-white/5 flex">
-                    <div class="h-full bg-gradient-to-r from-emerald-600 to-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.3)] transition-all duration-1000" style="width: {{ $posPercent }}%"></div>
-                    <div class="h-full bg-gradient-to-r from-red-600 to-red-400 shadow-[0_0_15px_rgba(239,68,68,0.3)] transition-all duration-1000" style="width: {{ $negPercent }}%"></div>
+
+                <!-- The Bar -->
+                <div class="relative z-10 mb-3">
+                    <!-- Outer Track -->
+                    <div class="h-[20px] w-full rounded-full overflow-hidden flex"
+                         style="background: rgba(15,23,42,0.9); box-shadow: inset 0 1px 3px rgba(0,0,0,0.6), 0 0 0 1px rgba(34,211,238,0.08);">
+
+                        <!-- Positive Fill -->
+                        <div class="ratio-fill-anim h-full relative rounded-l-full overflow-hidden" style="width: {{ $posPercent }}%;">
+                            <div class="absolute inset-0 rounded-l-full"
+                                 style="background: linear-gradient(90deg, #059669 0%, #10b981 40%, #34d399 100%);"></div>
+                            <div class="absolute inset-0 bg-gradient-to-b from-white/20 via-transparent to-black/10 rounded-l-full"></div>
+                            <div class="absolute inset-0 ratio-bar-shimmer rounded-l-full"></div>
+                        </div>
+
+                        <!-- Pulsing Center Divider -->
+                        <div class="w-[3px] h-full flex-shrink-0 relative">
+                            <div class="absolute inset-0 bg-white/60 rounded-full"></div>
+                            <div class="absolute -inset-1 bg-cyan-400/30 blur-sm rounded-full animate-pulse"></div>
+                        </div>
+
+                        <!-- Negative Fill -->
+                        <div class="ratio-fill-anim h-full relative rounded-r-full overflow-hidden" style="width: {{ $negPercent }}%;">
+                            <div class="absolute inset-0 rounded-r-full"
+                                 style="background: linear-gradient(90deg, #f87171 0%, #ef4444 40%, #dc2626 100%);"></div>
+                            <div class="absolute inset-0 bg-gradient-to-b from-white/20 via-transparent to-black/10 rounded-r-full"></div>
+                            <div class="absolute inset-0 ratio-bar-shimmer rounded-r-full"></div>
+                        </div>
+                    </div>
+
+                    <!-- Neon Trail Underglow -->
+                    <div class="absolute top-full left-0 h-[6px] rounded-full blur-md mt-px" style="width: {{ $posPercent }}%; background: linear-gradient(90deg, transparent, rgba(52,211,153,0.35));"></div>
+                    <div class="absolute top-full right-0 h-[6px] rounded-full blur-md mt-px" style="width: {{ $negPercent }}%; background: linear-gradient(270deg, transparent, rgba(248,113,113,0.35));"></div>
+                </div>
+
+                <!-- Bottom HUD Data Readout -->
+                <div class="relative z-10 flex justify-between items-center pt-1">
+                    <div class="flex items-center gap-2">
+                        <div class="w-1 h-1 rounded-full bg-emerald-400 shadow-[0_0_4px_rgba(52,211,153,0.8)] animate-pulse"></div>
+                        <span class="font-mono text-[20px] text-emerald-400/100 tracking-wider">
+                            <span class="text-emerald-400/100 font-bold">{{ number_format($positiveCount) }}</span> komentar positif
+                        </span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="font-mono text-[20px] text-red-400/100 tracking-wider">
+                            komentar negatif <span class="text-red-400/100 font-bold">{{ number_format($negativeCount) }}</span> 
+                        </span>
+                        <div class="w-1 h-1 rounded-full bg-red-400 shadow-[0_0_4px_rgba(248,113,113,0.8)] animate-pulse"></div>
+                    </div>
                 </div>
             </div>
+
+            <style>
+                .ratio-fill-anim {
+                    animation: ratioGrow 1s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+                    transform-origin: left center;
+                    transform: scaleX(0);
+                }
+                @keyframes ratioGrow {
+                    to { transform: scaleX(1); }
+                }
+
+                .ratio-bar-shimmer {
+                    background: linear-gradient(
+                        110deg,
+                        transparent 30%,
+                        rgba(255,255,255,0.15) 45%,
+                        rgba(255,255,255,0.25) 50%,
+                        rgba(255,255,255,0.15) 55%,
+                        transparent 70%
+                    );
+                    background-size: 250% 100%;
+                    animation: barShimmer 2.5s ease-in-out infinite;
+                }
+                @keyframes barShimmer {
+                    0% { background-position: 200% 0; }
+                    100% { background-position: -200% 0; }
+                }
+
+                .ratio-shimmer-sweep {
+                    background: linear-gradient(
+                        90deg,
+                        transparent 0%,
+                        rgba(34,211,238,0.03) 45%,
+                        rgba(34,211,238,0.06) 50%,
+                        rgba(34,211,238,0.03) 55%,
+                        transparent 100%
+                    );
+                    background-size: 200% 100%;
+                    animation: sweepShimmer 4s ease-in-out infinite;
+                }
+                @keyframes sweepShimmer {
+                    0% { background-position: 200% 0; }
+                    100% { background-position: -200% 0; }
+                }
+            </style>
         </div>
     </div>
 

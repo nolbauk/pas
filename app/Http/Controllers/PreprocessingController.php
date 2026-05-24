@@ -10,7 +10,7 @@ class PreprocessingController extends Controller
     public function index()
     {
         $results = PreprocessingResult::orderBy('dataset_id', 'asc')->get();
-        return view('preprocessing.preprocessing', compact('results'));
+        return view('train-model.train-model', compact('results'));
     }
 
     public function process()
@@ -32,7 +32,7 @@ class PreprocessingController extends Controller
             ]);
         }
 
-        return redirect('/preprocessing')
-            ->with('success', 'Preprocessing berhasil dilakukan');
+        // Call the training process from TrainingController programmatically
+        return app(TrainingController::class)->process();
     }
 }

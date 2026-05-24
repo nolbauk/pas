@@ -331,28 +331,17 @@
                         <span class="font-bold text-sm">Upload Dataset</span>
                     </a>
 
-                    <a href="/preprocessing" 
+                    <a href="/train-model" 
                        class="group flex items-center gap-3 p-3 rounded-xl transition-all duration-300 relative
-                       {{ request()->is('preprocessing') ? 'bg-cyan-500/10 text-cyan-400' : 'text-gray-400 hover:bg-white/5 hover:text-white' }}">
-                        @if(request()->is('preprocessing'))
+                       {{ request()->is('train-model') ? 'bg-cyan-500/10 text-cyan-400' : 'text-gray-400 hover:bg-white/5 hover:text-white' }}">
+                        @if(request()->is('train-model'))
                             <div class="absolute left-0 w-1 h-6 bg-cyan-400 rounded-r-full shadow-[0_0_10px_rgba(34,211,238,0.8)]"></div>
                         @endif
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 {{ request()->is('preprocessing') ? 'text-cyan-400' : 'group-hover:text-cyan-400 transition-colors' }}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6"/>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 {{ request()->is('train-model') ? 'text-cyan-400' : 'group-hover:text-cyan-400 transition-colors' }}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                         </svg>
-                        <span class="font-bold text-sm">Preprocessing</span>
-                    </a>
-
-                    <a href="/training" 
-                       class="group flex items-center gap-3 p-3 rounded-xl transition-all duration-300 relative
-                       {{ request()->is('training') ? 'bg-cyan-500/10 text-cyan-400' : 'text-gray-400 hover:bg-white/5 hover:text-white' }}">
-                        @if(request()->is('training'))
-                            <div class="absolute left-0 w-1 h-6 bg-cyan-400 rounded-r-full shadow-[0_0_10px_rgba(34,211,238,0.8)]"></div>
-                        @endif
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 {{ request()->is('training') ? 'text-cyan-400' : 'group-hover:text-cyan-400 transition-colors' }}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
-                        </svg>
-                        <span class="font-bold text-sm">Training SVM</span>
+                        <span class="font-bold text-sm">Train Model</span>
                     </a>
                 </div>
             </div>
