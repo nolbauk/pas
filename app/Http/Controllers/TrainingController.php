@@ -16,18 +16,24 @@ use Phpml\ModelManager;
 
 class TrainingController extends Controller
 {
+    /**
+     * Display the model training page
+     */
     public function index()
     {
         return view('training.training');
     }
 
+    /**
+     * Execute the entire Machine Learning Training pipeline
+     */
     public function process()
     {
-        // Training ML bisa membutuhkan banyak memory dan waktu, jadi kita lepas limitnya sementara
+        // Training ML can consume a lot of memory and time, so we temporarily remove the limits
         ini_set('memory_limit', '-1');
         ini_set('max_execution_time', '0');
 
-        // 1. Ambil data yang sudah dipreprocessing dan memiliki label
+        // 1. Fetch preprocessed data that possesses a valid sentiment label
         $data = PreprocessingResult::join('datasets', 'preprocessing_results.dataset_id', '=', 'datasets.id')
             ->select('preprocessing_results.processed_text', 'datasets.label')
             ->whereNotNull('datasets.label')
@@ -43,7 +49,8 @@ class TrainingController extends Controller
 
         foreach ($data as $row) {
             if (!empty($row->processed_text)) {
-                // Di PreprocessingController, kata dipisah dengan ' | '. Kita ubah jadi spasi agar WhitespaceTokenizer bisa membaca.
+                // In PreprocessingController, words were separated by ' | '. 
+                // We change it to a standard space so the WhitespaceTokenizer can parse it.
                 $samples[] = str_replace(' | ', ' ', $row->processed_text);
                 $labels[] = $row->label;
             }
@@ -54,33 +61,34 @@ class TrainingController extends Controller
         }
 
         try {
-            // 2. TF-IDF: Token Count Vectorizer (menghitung kemunculan kata)
+            // 2. Term Frequency: Token Count Vectorizer (counts occurrences of words)
             $vectorizer = new TokenCountVectorizer(new WhitespaceTokenizer());
             $vectorizer->fit($samples);
-            $vectorizer->transform($samples); // $samples sekarang menjadi array angka (jumlah kata)
+            $vectorizer->transform($samples); // $samples now becomes an array of token counts
 
-            // 3. TF-IDF: Transformer (mengubah ke bobot TF-IDF)
+            // 3. Inverse Document Frequency: Transformer (converts raw counts to TF-IDF weights)
             $tfIdfTransformer = new TfIdfTransformer($samples);
             $tfIdfTransformer->fit($samples);
-            $tfIdfTransformer->transform($samples); // $samples sekarang menjadi array bobot desimal TF-IDF
+            $tfIdfTransformer->transform($samples); // $samples now becomes an array of decimal TF-IDF weights
 
-            // 4. Training Model SVM (Support Vector Classification)
+            // 4. Train the Support Vector Machine (SVM) Classification Model
             $classifier = new SVC(Kernel::LINEAR, $cost = 1000);
             $classifier->train($samples, $labels);
 
-            // 5. Simpan Model dan Extractor untuk digunakan saat Testing
+            // 5. Save the trained Model and Extractors for future use during Testing/Prediction
             $modelManager = new ModelManager();
             
             $path = storage_path('app/models/');
             
-            // Buat folder storage/app/models jika belum ada
+            // Create the storage/app/models folder if it doesn't exist
             if (!is_dir($path)) {
                 mkdir($path, 0777, true);
             }
 
+            // Save the SVM classifier model
             $modelManager->saveToFile($classifier, $path . 'svm_model.phpml');
             
-            // ModelManager hanya menerima Estimator, jadi untuk Vectorizer dan Transformer kita gunakan serialize() bawaan PHP
+            // ModelManager only accepts Estimators, so for Vectorizer and Transformer we use PHP's native serialize()
             file_put_contents($path . 'vectorizer.phpml', serialize($vectorizer));
             file_put_contents($path . 'tfidf.phpml', serialize($tfIdfTransformer));
 

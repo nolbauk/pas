@@ -8,34 +8,44 @@ use Illuminate\Http\Request;
 
 class DatasetController extends Controller
 {
+    /**
+     * Display a listing of all uploaded datasets
+     */
     public function index()
     {
+        // Fetch all datasets sorted by their ID in ascending order
         $datasets = Dataset::orderBy('id', 'asc')->get();
 
         return view('upload-dataset.upload-dataset', compact('datasets'));
     }
 
+    /**
+     * Handle the upload and import of a new dataset (CSV file)
+     */
     public function upload(Request $request)
     {
+        // Validate that the uploaded file exists and is in csv or txt format
         $request->validate([
             'dataset_file' => 'required|mimes:csv,txt'
         ]);
 
         /*
-        HAPUS DATA LAMA
-        urutan penting:
-        preprocessing dulu → dataset
-        */
+         * DELETE OLD DATA BEFORE IMPORT
+         * It is important to delete preprocessing results first, 
+         * and then the raw dataset to maintain referential integrity if applicable.
+         */
         PreprocessingResult::query()->delete();
         Dataset::query()->delete();
 
         $file = $request->file('dataset_file');
         $handle = fopen($file->getRealPath(), 'r');
 
-        // skip header csv
+        // Skip the header row of the CSV file
         $header = fgetcsv($handle);
 
+        // Read and parse the CSV file row by row
         while (($row = fgetcsv($handle, 1000, ",")) !== false) {
+            // Create a new Dataset record for each row mapped to the expected columns
             Dataset::create([
                 'conversation_id_str'      => $row[0] ?? null,
                 'created_at'               => $row[1] ?? null,
@@ -58,15 +68,21 @@ class DatasetController extends Controller
 
         fclose($handle);
 
+        // Return a success JSON response after uploading is complete
         return response()->json([
             'message' => 'Dataset berhasil diupload'
         ]);
     }
 
+    /**
+     * Clear all datasets and preprocessing results
+     */
     public function clear()
     {
-        // hapus preprocessing juga
+        // Delete all preprocessing results to clean up dependent data
         PreprocessingResult::query()->delete();
+        
+        // Delete the entire dataset
         Dataset::query()->delete();
 
         return redirect('/upload-dataset')
