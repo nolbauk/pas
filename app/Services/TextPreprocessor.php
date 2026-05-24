@@ -4,6 +4,13 @@ namespace App\Services;
 
 class TextPreprocessor
 {
+    /**
+     * Main pipeline method to execute the full NLP text preprocessing.
+     * Applies case folding, cleansing, tokenizing, normalization, stopword removal, and stemming.
+     *
+     * @param string $original The raw input text
+     * @return string The fully processed text
+     */
     public function processText($original)
     {
         // ======================
@@ -149,11 +156,24 @@ class TextPreprocessor
         return implode(' | ', $finalTokens);
     }
 
+    /**
+     * Convert all characters in the text to lowercase (Case Folding)
+     *
+     * @param string $text
+     * @return string
+     */
     public function handleCaseFolding($text)
     {
         return mb_strtolower($text);
     }
 
+    /**
+     * Clean the text by removing URLs, mentions, hashtags, numbers, punctuation, 
+     * and applying spelling corrections.
+     *
+     * @param string $text
+     * @return string
+     */
     public function handleCleansing($text)
     {
         // Remove URLs
@@ -249,6 +269,13 @@ class TextPreprocessor
         return $text;
     }
 
+    /**
+     * Tokenize the text into an array of words (Tokenization)
+     * Also splits attached words and handles specific slang patterns.
+     *
+     * @param string $text
+     * @return array
+     */
     public function handleTokenizing($text)
     {
         $tokens = explode(' ', $text);
@@ -415,6 +442,12 @@ class TextPreprocessor
         return array_values(array_filter($expanded));
     }
 
+    /**
+     * Normalize slang, abbreviations, and informal language to their standard Indonesian equivalents.
+     *
+     * @param array $tokens
+     * @return array
+     */
     public function handleNormalization($tokens)
     {
         $normalizationMap = [
@@ -601,6 +634,12 @@ class TextPreprocessor
         return array_filter($result);
     }
 
+    /**
+     * Retrieve a list of words that should be protected from stemming and stopword removal.
+     * These include important entities, locations, sentiments, and government terms.
+     *
+     * @return array
+     */
     public function getProtectedWords()
     {
         return [
@@ -664,11 +703,23 @@ class TextPreprocessor
         ];
     }
 
+    /**
+     * Check if a word is in the protected list
+     *
+     * @param string $word
+     * @return bool
+     */
     public function isProtectedWord($word)
     {
         return in_array($word, $this->getProtectedWords());
     }
 
+    /**
+     * Check if a word is a negation word (e.g., tidak, belum, jangan)
+     *
+     * @param string $word
+     * @return bool
+     */
     public function isNegationWord($word)
     {
         $negations = ['tidak', 'bukan', 'jangan', 'belum', 'tak', 'takkan', 
@@ -677,6 +728,13 @@ class TextPreprocessor
         return in_array($word, $negations);
     }
 
+    /**
+     * Iterate through tokens and apply stemming rules.
+     * Protects specific words, negation words, and removes duplicates.
+     *
+     * @param array $tokens
+     * @return array
+     */
     public function handleStemming($tokens)
     {
         $finalTokens = [];
@@ -717,6 +775,13 @@ class TextPreprocessor
         return $result;
     }
     
+    /**
+     * Apply Indonesian stemming rules (removing prefixes and suffixes)
+     * while preserving specific core words.
+     *
+     * @param string $word
+     * @return string
+     */
     public function applyStemmingRules($word)
     {
         if (strlen($word) <= 2) {
@@ -768,6 +833,11 @@ class TextPreprocessor
         return $word;
     }
     
+    /**
+     * Retrieve a map of fixed overrides for words that fail standard stemming
+     *
+     * @return array
+     */
     public function getFixedOverrides()
     {
         return [
@@ -837,6 +907,12 @@ class TextPreprocessor
         ];
     }
     
+    /**
+     * Remove standard Indonesian prefixes (me-, di-, pe-, ter-, dll.)
+     *
+     * @param string $word
+     * @return string
+     */
     public function removePrefixes($word)
     {
         $prefixes = [
@@ -877,6 +953,12 @@ class TextPreprocessor
         return $word;
     }
     
+    /**
+     * Remove standard Indonesian suffixes (-kan, -an, -i)
+     *
+     * @param string $word
+     * @return string
+     */
     public function removeSuffixes($word)
     {
         $suffixes = ['kan', 'an', 'i'];
@@ -894,6 +976,12 @@ class TextPreprocessor
         return $word;
     }
     
+    /**
+     * Apply final cleaning and spelling corrections after stemming has been performed.
+     *
+     * @param string $word
+     * @return string|null
+     */
     public function finalClean($word)
     {
         if (strlen($word) <= 2) {
