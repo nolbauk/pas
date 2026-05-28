@@ -236,7 +236,7 @@
                 <th class="p-4 text-[12px] font-black text-gray-400 uppercase tracking-[0.2em] w-[35%]">Komentar Asli</th>
                 <th class="p-4 text-[12px] font-black text-gray-400 uppercase tracking-[0.2em] w-[35%]">Hasil Preprocessing</th>
                 @if(isset($metrics))
-                    <th class="p-4 text-[12px] font-black text-gray-400 uppercase tracking-[0.2em] w-32">Aktual</th>
+                    <th class="p-4 text-[12px] font-black text-gray-400 uppercase tracking-[0.2em] w-32">Anatator</th>
                 @endif
                 <th class="p-4 text-[12px] font-black text-gray-400 uppercase tracking-[0.2em]">Prediksi Model</th>
             </tr>

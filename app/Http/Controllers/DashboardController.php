@@ -28,18 +28,18 @@ class DashboardController extends Controller
             $results = $saved['results'] ?? [];
             $totalData = count($results); // Total testing data evaluated
             
-            // Loop through results to separate into True Positives and True Negatives
+            // Loop through results to separate into Positives and Negatives based on Prediction
             foreach ($results as $res) {
-                // True Positive (actual is 1 and predicted is 1)
-                if ($res['actual'] == 1 && $res['predicted'] == 1) {
+                // Predicted Positive
+                if ($res['predicted'] == 1) {
                     $positiveCount++;
                     $positiveData->push((object) [
                         'full_text' => $res['komentar'],
                         'label' => $res['predicted']
                     ]);
                 } 
-                // True Negative (actual is 0 and predicted is 0)
-                elseif ($res['actual'] == 0 && $res['predicted'] == 0) {
+                // Predicted Negative
+                elseif ($res['predicted'] == 0) {
                     $negativeCount++;
                     $negativeData->push((object) [
                         'full_text' => $res['komentar'],
@@ -73,29 +73,27 @@ class DashboardController extends Controller
             
             $results = $saved['results'] ?? [];
             
-            // Count correctly predicted positive and negative sentiments
+            // Count predicted positive and negative sentiments
             foreach ($results as $res) {
-                // True Positive
-                if ($res['actual'] == 1 && $res['predicted'] == 1) {
+                // Predicted Positive
+                if ($res['predicted'] == 1) {
                     $positiveCount++;
                 } 
-                // True Negative
-                elseif ($res['actual'] == 0 && $res['predicted'] == 0) {
+                // Predicted Negative
+                elseif ($res['predicted'] == 0) {
                     $negativeCount++;
                 }
             }
             
-            // For percentage calculations on the dashboard, we use the sum of TP and TN 
-            // to represent the whole distribution of correct predictions
+            // Total Data based on predictions
             $totalData = $positiveCount + $negativeCount; 
         }
         
-        // Calculate percentages based on correctly predicted data
+        // Calculate percentages based on all predicted data
         $posPercent = $totalData > 0 ? round(($positiveCount / $totalData) * 100, 1) : 0;
         $negPercent = $totalData > 0 ? round(($negativeCount / $totalData) * 100, 1) : 0;
         
-        // For display purpose of total evaluated data on the dashboard card, 
-        // we reset totalData to the actual total rows evaluated.
+        // For display purpose of total evaluated data on the dashboard card
         $totalData = isset($results) ? count($results) : 0;
 
         return view('dashboard.dashboard', compact(

@@ -106,9 +106,8 @@ class TextPreprocessor
             'aj', 'ajah', 'dah', 'udah', 'uda', 'sdh', 'udh', 'gpp', 'gausah',
             'yah', 'ya', 'yee', 'iyo', 'iyoo', 'iya', 'iy', 'ngga', 'gga',
             
-            // Shouting/exclamation words
-            'gass', 'gasss', 'gassco', 'gas', 'yes', 'yess', 'yesss',
-            'ok', 'oke', 'okey', 'okelah', 'sip', 'mantap', 'top',
+            // Shouting/exclamation words (Removed positive words from here)
+            'yes', 'yess', 'yesss',
             
             // Patterns
             'wkwkwkwk', 'wkwkwk', 'wkwk', 'wkwwk', 'wkwkk', 'hahaha', 'hehehe',
@@ -569,10 +568,15 @@ class TextPreprocessor
             'ajamendingin' => 'mending',
             'mendingaja' => 'mending',
             
+            // Positive Slang
+            'mantaap' => 'mantap', 'mantabb' => 'mantap', 'mantab' => 'mantap', 'mantapp' => 'mantap',
+            'kerenn' => 'keren', 'kerennn' => 'keren', 'nihh' => 'nih',
+            'ok' => 'oke', 'okey' => 'oke', 'okelah' => 'oke', 'tetep' => 'tetap',
+            
             // Fix for "gass"
-            'gass' => '',
-            'gasss' => '',
-            'gassco' => '',
+            'gass' => 'gas',
+            'gasss' => 'gas',
+            'gassco' => 'gas',
             
             // Fix for "gausah", "gasah"
             'gausah' => 'tidak usah',
@@ -676,6 +680,8 @@ class TextPreprocessor
             'rapih', 'getol', 'bener', 'salah', 'parah', 'kacau', 'aneh', 'bet',
             'ngawur', 'nyeleneh', 'gila', 'tolol', 'goblok', 'bodoh', 'bego',
             'solusi', 'brilian', 'cerdas', 'pinter', 'bijak', 'tegas',
+            'baik', 'bagus', 'oke', 'mantap', 'top', 'keren', 'sepakat', 'gas', 'aman',
+            'menguntungkan', 'asuransi', 'hilang',
             
             // Words related to "berantas" - KEEP
             'berantas', 'basmi',
@@ -798,6 +804,7 @@ class TextPreprocessor
             'sampai', 'sendiri', 'berarti', 'terus', 'setelah', 'seharusnya',
             'kemudian', 'keberatan', 'pekerjaan', 'tahun', 'setahun',
             'rapih', 'getol', 'bener', 'kacau', 'aneh', 'ngawur', 'nyeleneh',
+            'bagus', 'keren', 'mantap', 'oke', 'sepakat', 'asuransi', 'menguntungkan',
             'gila', 'tolol', 'goblok', 'bodoh', 'bego', 'bacok', 'hukum', 'siksa',
             'solusi', 'brilian', 'cerdas', 'pinter', 'bijak', 'tegas', 'kasih',
             'kang', 'bang', 'pak', 'bu', 'mas', 'mbak', 'dek', 'kak', 'lur',
