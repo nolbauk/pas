@@ -21,7 +21,7 @@
     "outputDirectory": "public",
     "env": {
         "APP_ENV": "production",
-        "APP_DEBUG": "true",
+        "APP_DEBUG": "false",
         "APP_URL": "https://pas-kgsb.vercel.app",
         "APP_KEY": "base64:TGaVaXwhWgjn9akhE4SCSIjGG/cQqvICUQ+PgLA3Bs0=",
         "APP_CONFIG_CACHE": "/tmp/config.php",
@@ -32,6 +32,6 @@
         "VIEW_COMPILED_PATH": "/tmp",
         "CACHE_DRIVER": "database",
         "LOG_CHANNEL": "stderr",
-        "SESSION_DRIVER": "database"
+        "SESSION_DRIVER": "cookie"
     }
 }
