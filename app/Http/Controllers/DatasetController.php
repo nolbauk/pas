@@ -48,9 +48,18 @@ class DatasetController extends Controller
             $batch = [];
             $now = now();
             while (($row = fgetcsv($handle, 1000, ",")) !== false) {
+                // Parse date safely to avoid Y2K38 MySQL TIMESTAMP limit (max 2038-01-19)
+                $createdAt = $now;
+                if (!empty($row[1])) {
+                    $parsed = strtotime($row[1]);
+                    if ($parsed !== false && $parsed > 0 && $parsed <= 2147483647) {
+                        $createdAt = date('Y-m-d H:i:s', $parsed);
+                    }
+                }
+
                 $batch[] = [
                     'conversation_id_str'      => isset($row[0]) && $row[0] !== '' ? $row[0] : null,
-                    'created_at'               => (!empty($row[1]) && strtotime($row[1])) ? date('Y-m-d H:i:s', strtotime($row[1])) : $now,
+                    'created_at'               => $createdAt,
                     'updated_at'               => $now,
                     'favorite_count'           => isset($row[2]) && $row[2] !== '' ? $row[2] : null,
                     'full_text'                => isset($row[3]) && $row[3] !== '' ? $row[3] : null,
