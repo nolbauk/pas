@@ -152,7 +152,33 @@ class TextPreprocessor
         $finalTokens = $this->handleStemming($tokens);
         $finalTokens = array_filter($finalTokens);
         
-        return implode(' | ', $finalTokens);
+        return implode(' ', $finalTokens);
+    }
+
+    /**
+     * Analyze a text word by word to show preprocessing breakdown
+     *
+     * @param string $original The raw input text
+     * @return array Array of analysis details for each word
+     */
+    public function analyzeText($original)
+    {
+        $words = explode(' ', $original);
+        $analysis = [];
+        
+        foreach ($words as $word) {
+            $word = trim($word);
+            if ($word === '') continue;
+            
+            $processed = $this->processText($word);
+            
+            $analysis[] = [
+                'original' => $word,
+                'processed' => empty(trim($processed)) ? '-' : $processed,
+            ];
+        }
+        
+        return $analysis;
     }
 
     /**
