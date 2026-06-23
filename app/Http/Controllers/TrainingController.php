@@ -76,21 +76,44 @@ class TrainingController extends Controller
             $classifier->train($samples, $labels);
 
             // 5. Save the trained Model and Extractors for future use during Testing/Prediction
-            $modelManager = new ModelManager();
+            // In a Vercel Serverless environment, the filesystem is read-only.
+            // We use Laravel Cache (configured to database driver in vercel.json) to persist models.
             
-            $path = storage_path('app/models/');
-            
-            // Create the storage/app/models folder if it doesn't exist
-            if (!is_dir($path)) {
-                mkdir($path, 0777, true);
-            }
+            \Illuminate\Support\Facades\Cache::put('ml_svm_model', serialize($classifier));
+            \Illuminate\Support\Facades\Cache::put('ml_vectorizer', serialize($vectorizer));
+            \Illuminate\Support\Facades\Cache::put('ml_tfidf', serialize($tfIdfTransformer));
 
-            // Save the SVM classifier model
-            $modelManager->saveToFile($classifier, $path . 'svm_model.phpml');
+            // Extract IDF weights and Vocabulary for display
+            $vocabulary = $vectorizer->getVocabulary(); // returns [index => word]
             
-            // ModelManager only accepts Estimators, so for Vectorizer and Transformer we use PHP's native serialize()
-            file_put_contents($path . 'vectorizer.phpml', serialize($vectorizer));
-            file_put_contents($path . 'tfidf.phpml', serialize($tfIdfTransformer));
+            // Use Reflection to access private $idf property of TfIdfTransformer
+            $reflector = new \ReflectionClass($tfIdfTransformer);
+            $property = $reflector->getProperty('idf');
+            $property->setAccessible(true);
+            $idfWeights = $property->getValue($tfIdfTransformer);
+            
+            $wordWeights = [];
+            foreach ($vocabulary as $index => $word) {
+                $wordWeights[$word] = isset($idfWeights[$index]) ? round($idfWeights[$index], 4) : 0;
+            }
+            
+            // Sort by weight descending
+            arsort($wordWeights);
+            
+            $stats = [
+                'svm_config' => [
+                    'kernel' => 'Linear',
+                    'cost' => 1000,
+                    'degree' => 3,
+                    'gamma' => 'null',
+                    'coef0' => 0.0,
+                    'tolerance' => 0.001
+                ],
+                'tf_idf_weights' => $wordWeights,
+                'total_words' => count($wordWeights)
+            ];
+            
+            \Illuminate\Support\Facades\Cache::put('ml_training_stats', $stats);
 
             return back()->with('success', 'Training SVM berhasil dilakukan pada ' . count($labels) . ' data komentar.');
 

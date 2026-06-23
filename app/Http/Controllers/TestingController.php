@@ -3,31 +3,19 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Phpml\ModelManager;
+use Illuminate\Support\Facades\Cache;
 use App\Services\TextPreprocessor;
 
 class TestingController extends Controller
 {
-    /**
-     * Get the absolute path to the testing results JSON file
-     */
-    private function getResultsPath()
-    {
-        return storage_path('app/models/testing_results.json');
-    }
-
-    /**
-     * Display the testing dashboard page with previous test results if available
-     */
     public function index()
     {
         $results = null;
         $metrics = null;
 
         // Load saved testing results if they exist to persist data across page reloads
-        $path = $this->getResultsPath();
-        if (file_exists($path)) {
-            $saved = json_decode(file_get_contents($path), true);
+        $saved = Cache::get('ml_testing_results');
+        if ($saved) {
             $results = $saved['results'] ?? null;
             $metrics = $saved['metrics'] ?? null;
         }
@@ -50,17 +38,19 @@ class TestingController extends Controller
             'testingFile' => 'required|mimes:csv,txt|max:10240',
         ]);
 
-        $path = storage_path('app/models/');
         // Verify that the required machine learning models exist
-        if (!file_exists($path . 'svm_model.phpml') || !file_exists($path . 'vectorizer.phpml')) {
+        $classifierSer = Cache::get('ml_svm_model');
+        $vectorizerSer = Cache::get('ml_vectorizer');
+        $tfidfSer = Cache::get('ml_tfidf');
+        
+        if (!$classifierSer || !$vectorizerSer || !$tfidfSer) {
             return back()->with('error', 'Model belum ditraining! Silakan lakukan training terlebih dahulu.');
         }
 
         // Load trained classification models and feature extractors
-        $modelManager = new ModelManager();
-        $classifier = $modelManager->restoreFromFile($path . 'svm_model.phpml');
-        $vectorizer = unserialize(file_get_contents($path . 'vectorizer.phpml'));
-        $tfIdfTransformer = unserialize(file_get_contents($path . 'tfidf.phpml'));
+        $classifier = unserialize($classifierSer);
+        $vectorizer = unserialize($vectorizerSer);
+        $tfIdfTransformer = unserialize($tfidfSer);
 
         $preprocessor = new TextPreprocessor();
 
@@ -175,12 +165,12 @@ class TestingController extends Controller
             ];
         }
 
-        // Save results to a JSON file so they persist across page navigation
-        file_put_contents($this->getResultsPath(), json_encode([
+        // Save results to Cache so they persist across page navigation
+        Cache::put('ml_testing_results', [
             'results' => $results,
             'metrics' => $metrics,
             'tested_at' => now()->toDateTimeString(),
-        ]));
+        ]);
 
         return view('testing.testing', compact('results', 'metrics'))->with('success', 'Testing berhasil dilakukan!');
     }
@@ -190,11 +180,8 @@ class TestingController extends Controller
      */
     public function clear()
     {
-        $path = $this->getResultsPath();
-        // Delete the testing results JSON file if it exists
-        if (file_exists($path)) {
-            unlink($path);
-        }
+        // Delete the testing results from Cache
+        Cache::forget('ml_testing_results');
 
         return redirect()->route('testing')->with('success', 'Data testing berhasil dihapus!');
     }
