@@ -13,10 +13,9 @@ class EvaluationController extends Controller
     {
         $metrics = null;
 
-        // Load saved testing results from the JSON file if they exist
-        $path = storage_path('app/models/testing_results.json');
-        if (file_exists($path)) {
-            $saved = json_decode(file_get_contents($path), true);
+        // Load saved testing results from Cache
+        $saved = \Illuminate\Support\Facades\Cache::get('ml_testing_results');
+        if ($saved) {
             // Retrieve evaluation metrics (accuracy, precision, recall, f1)
             $metrics = $saved['metrics'] ?? null;
         }
