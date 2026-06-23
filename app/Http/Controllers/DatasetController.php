@@ -49,7 +49,7 @@ class DatasetController extends Controller
         while (($row = fgetcsv($handle, 1000, ",")) !== false) {
             $batch[] = [
                 'conversation_id_str'      => $row[0] ?? null,
-                'created_at'               => $row[1] ?? $now,
+                'created_at'               => (!empty($row[1]) && strtotime($row[1])) ? date('Y-m-d H:i:s', strtotime($row[1])) : $now,
                 'updated_at'               => $now,
                 'favorite_count'           => $row[2] ?? null,
                 'full_text'                => $row[3] ?? null,
