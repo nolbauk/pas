@@ -32,6 +32,6 @@
         "VIEW_COMPILED_PATH": "/tmp",
         "CACHE_DRIVER": "database",
         "LOG_CHANNEL": "stderr",
-        "SESSION_DRIVER": "cookie"
+        "SESSION_DRIVER": "database"
     }
 }
