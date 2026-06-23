@@ -120,7 +120,8 @@ class TrainingController extends Controller
             return back()->with('success', 'Training SVM berhasil dilakukan pada ' . count($labels) . ' data komentar.');
 
         } catch (\Exception $e) {
-            return back()->with('error', 'Terjadi kesalahan saat training: ' . $e->getMessage());
+            $errorMessage = substr($e->getMessage(), 0, 300);
+            return back()->with('error', 'Terjadi kesalahan saat training: ' . $errorMessage . '...');
         }
     }
 }
