@@ -255,7 +255,15 @@ function uploadDataset() {
                 window.location.reload();
             }, 1000);
         } else {
-            alert('Upload gagal');
+            let errorMsg = 'Upload gagal';
+            try {
+                const response = JSON.parse(xhr.responseText);
+                errorMsg = response.message || errorMsg;
+            } catch (e) {
+                // If not JSON, show first 100 chars of response
+                errorMsg = 'Upload gagal: ' + xhr.responseText.substring(0, 100) + '...';
+            }
+            alert(errorMsg);
             uploadBtn.disabled = false;
             uploadBtn.innerText = 'Upload Dataset';
         }

@@ -48,23 +48,23 @@ class DatasetController extends Controller
         $now = now();
         while (($row = fgetcsv($handle, 1000, ",")) !== false) {
             $batch[] = [
-                'conversation_id_str'      => $row[0] ?? null,
+                'conversation_id_str'      => isset($row[0]) && $row[0] !== '' ? $row[0] : null,
                 'created_at'               => (!empty($row[1]) && strtotime($row[1])) ? date('Y-m-d H:i:s', strtotime($row[1])) : $now,
                 'updated_at'               => $now,
-                'favorite_count'           => $row[2] ?? null,
-                'full_text'                => $row[3] ?? null,
-                'id_str'                   => $row[4] ?? null,
-                'image_url'                => $row[5] ?? null,
-                'in_reply_to_screen_name'  => $row[6] ?? null,
-                'lang'                     => $row[7] ?? null,
-                'location'                 => $row[8] ?? null,
-                'quote_count'              => $row[9] ?? null,
-                'reply_count'              => $row[10] ?? null,
-                'retweet_count'            => $row[11] ?? null,
-                'tweet_url'                => $row[12] ?? null,
-                'user_id_str'              => $row[13] ?? null,
-                'username'                 => $row[14] ?? null,
-                'label'                    => $row[15] ?? null,
+                'favorite_count'           => isset($row[2]) && $row[2] !== '' ? $row[2] : null,
+                'full_text'                => isset($row[3]) && $row[3] !== '' ? $row[3] : null,
+                'id_str'                   => isset($row[4]) && $row[4] !== '' ? $row[4] : null,
+                'image_url'                => isset($row[5]) && $row[5] !== '' ? $row[5] : null,
+                'in_reply_to_screen_name'  => isset($row[6]) && $row[6] !== '' ? $row[6] : null,
+                'lang'                     => isset($row[7]) && $row[7] !== '' ? $row[7] : null,
+                'location'                 => isset($row[8]) && $row[8] !== '' ? $row[8] : null,
+                'quote_count'              => isset($row[9]) && $row[9] !== '' ? $row[9] : null,
+                'reply_count'              => isset($row[10]) && $row[10] !== '' ? $row[10] : null,
+                'retweet_count'            => isset($row[11]) && $row[11] !== '' ? $row[11] : null,
+                'tweet_url'                => isset($row[12]) && $row[12] !== '' ? $row[12] : null,
+                'user_id_str'              => isset($row[13]) && $row[13] !== '' ? $row[13] : null,
+                'username'                 => isset($row[14]) && $row[14] !== '' ? $row[14] : null,
+                'label'                    => isset($row[15]) && $row[15] !== '' ? $row[15] : null,
             ];
 
             // Batch insert every 500 rows to prevent Vercel execution timeout (10s limit)
