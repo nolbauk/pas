@@ -73,6 +73,8 @@ class TrainingController extends Controller
 
             // 4. Train the Support Vector Machine (SVM) Classification Model
             $classifier = new SVC(Kernel::LINEAR, $cost = 1000);
+            // Vercel only allows writing to /tmp directory
+            $classifier->setVarPath(sys_get_temp_dir());
             $classifier->train($samples, $labels);
 
             // 5. Save the trained Model and Extractors for future use during Testing/Prediction

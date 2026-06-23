@@ -49,6 +49,9 @@ class TestingController extends Controller
 
         // Load trained classification models and feature extractors
         $classifier = unserialize($classifierSer);
+        // Vercel only allows writing to /tmp directory
+        $classifier->setVarPath(sys_get_temp_dir());
+        
         $vectorizer = unserialize($vectorizerSer);
         $tfIdfTransformer = unserialize($tfidfSer);
 

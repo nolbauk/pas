@@ -45,6 +45,9 @@ class RealTimePredictionController extends Controller
 
         // Load the trained SVM classifier and text transformers into memory
         $classifier = unserialize($classifierSer);
+        // Vercel only allows writing to /tmp directory
+        $classifier->setVarPath(sys_get_temp_dir());
+        
         $vectorizer = unserialize($vectorizerSer);
         $tfIdfTransformer = unserialize($tfidfSer);
 
