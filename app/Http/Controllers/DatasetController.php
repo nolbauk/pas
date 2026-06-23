@@ -24,67 +24,73 @@ class DatasetController extends Controller
      */
     public function upload(Request $request)
     {
-        // Validate that the uploaded file exists and is in csv or txt format
-        $request->validate([
-            'dataset_file' => 'required|mimes:csv,txt'
-        ]);
+        try {
+            // Validate that the uploaded file exists and is in csv or txt format
+            $request->validate([
+                'dataset_file' => 'required|mimes:csv,txt'
+            ]);
 
-        /*
-         * DELETE OLD DATA BEFORE IMPORT
-         * It is important to delete preprocessing results first, 
-         * and then the raw dataset to maintain referential integrity if applicable.
-         */
-        PreprocessingResult::query()->delete();
-        Dataset::query()->delete();
+            /*
+             * DELETE OLD DATA BEFORE IMPORT
+             * It is important to delete preprocessing results first, 
+             * and then the raw dataset to maintain referential integrity if applicable.
+             */
+            PreprocessingResult::query()->delete();
+            Dataset::query()->delete();
 
-        $file = $request->file('dataset_file');
-        $handle = fopen($file->getRealPath(), 'r');
+            $file = $request->file('dataset_file');
+            $handle = fopen($file->getRealPath(), 'r');
 
-        // Skip the header row of the CSV file
-        $header = fgetcsv($handle);
+            // Skip the header row of the CSV file
+            $header = fgetcsv($handle);
 
-        // Read and parse the CSV file row by row
-        $batch = [];
-        $now = now();
-        while (($row = fgetcsv($handle, 1000, ",")) !== false) {
-            $batch[] = [
-                'conversation_id_str'      => isset($row[0]) && $row[0] !== '' ? $row[0] : null,
-                'created_at'               => (!empty($row[1]) && strtotime($row[1])) ? date('Y-m-d H:i:s', strtotime($row[1])) : $now,
-                'updated_at'               => $now,
-                'favorite_count'           => isset($row[2]) && $row[2] !== '' ? $row[2] : null,
-                'full_text'                => isset($row[3]) && $row[3] !== '' ? $row[3] : null,
-                'id_str'                   => isset($row[4]) && $row[4] !== '' ? $row[4] : null,
-                'image_url'                => isset($row[5]) && $row[5] !== '' ? $row[5] : null,
-                'in_reply_to_screen_name'  => isset($row[6]) && $row[6] !== '' ? $row[6] : null,
-                'lang'                     => isset($row[7]) && $row[7] !== '' ? $row[7] : null,
-                'location'                 => isset($row[8]) && $row[8] !== '' ? $row[8] : null,
-                'quote_count'              => isset($row[9]) && $row[9] !== '' ? $row[9] : null,
-                'reply_count'              => isset($row[10]) && $row[10] !== '' ? $row[10] : null,
-                'retweet_count'            => isset($row[11]) && $row[11] !== '' ? $row[11] : null,
-                'tweet_url'                => isset($row[12]) && $row[12] !== '' ? $row[12] : null,
-                'user_id_str'              => isset($row[13]) && $row[13] !== '' ? $row[13] : null,
-                'username'                 => isset($row[14]) && $row[14] !== '' ? $row[14] : null,
-                'label'                    => isset($row[15]) && $row[15] !== '' ? $row[15] : null,
-            ];
+            // Read and parse the CSV file row by row
+            $batch = [];
+            $now = now();
+            while (($row = fgetcsv($handle, 1000, ",")) !== false) {
+                $batch[] = [
+                    'conversation_id_str'      => isset($row[0]) && $row[0] !== '' ? $row[0] : null,
+                    'created_at'               => (!empty($row[1]) && strtotime($row[1])) ? date('Y-m-d H:i:s', strtotime($row[1])) : $now,
+                    'updated_at'               => $now,
+                    'favorite_count'           => isset($row[2]) && $row[2] !== '' ? $row[2] : null,
+                    'full_text'                => isset($row[3]) && $row[3] !== '' ? $row[3] : null,
+                    'id_str'                   => isset($row[4]) && $row[4] !== '' ? $row[4] : null,
+                    'image_url'                => isset($row[5]) && $row[5] !== '' ? $row[5] : null,
+                    'in_reply_to_screen_name'  => isset($row[6]) && $row[6] !== '' ? $row[6] : null,
+                    'lang'                     => isset($row[7]) && $row[7] !== '' ? $row[7] : null,
+                    'location'                 => isset($row[8]) && $row[8] !== '' ? $row[8] : null,
+                    'quote_count'              => isset($row[9]) && $row[9] !== '' ? $row[9] : null,
+                    'reply_count'              => isset($row[10]) && $row[10] !== '' ? $row[10] : null,
+                    'retweet_count'            => isset($row[11]) && $row[11] !== '' ? $row[11] : null,
+                    'tweet_url'                => isset($row[12]) && $row[12] !== '' ? $row[12] : null,
+                    'user_id_str'              => isset($row[13]) && $row[13] !== '' ? $row[13] : null,
+                    'username'                 => isset($row[14]) && $row[14] !== '' ? $row[14] : null,
+                    'label'                    => isset($row[15]) && $row[15] !== '' ? $row[15] : null,
+                ];
 
-            // Batch insert every 500 rows to prevent Vercel execution timeout (10s limit)
-            if (count($batch) >= 500) {
-                Dataset::insert($batch);
-                $batch = [];
+                // Batch insert every 500 rows to prevent Vercel execution timeout (10s limit)
+                if (count($batch) >= 500) {
+                    Dataset::insert($batch);
+                    $batch = [];
+                }
             }
+
+            // Insert remaining rows
+            if (count($batch) > 0) {
+                Dataset::insert($batch);
+            }
+
+            fclose($handle);
+
+            // Return a success JSON response after uploading is complete
+            return response()->json([
+                'message' => 'Dataset berhasil diupload'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Error: ' . $e->getMessage() . ' di baris ' . $e->getLine()
+            ], 500);
         }
-
-        // Insert remaining rows
-        if (count($batch) > 0) {
-            Dataset::insert($batch);
-        }
-
-        fclose($handle);
-
-        // Return a success JSON response after uploading is complete
-        return response()->json([
-            'message' => 'Dataset berhasil diupload'
-        ]);
     }
 
     /**
