@@ -44,11 +44,13 @@ class DatasetController extends Controller
         $header = fgetcsv($handle);
 
         // Read and parse the CSV file row by row
+        $batch = [];
+        $now = now();
         while (($row = fgetcsv($handle, 1000, ",")) !== false) {
-            // Create a new Dataset record for each row mapped to the expected columns
-            Dataset::create([
+            $batch[] = [
                 'conversation_id_str'      => $row[0] ?? null,
-                'created_at'               => $row[1] ?? null,
+                'created_at'               => $row[1] ?? $now,
+                'updated_at'               => $now,
                 'favorite_count'           => $row[2] ?? null,
                 'full_text'                => $row[3] ?? null,
                 'id_str'                   => $row[4] ?? null,
@@ -63,7 +65,18 @@ class DatasetController extends Controller
                 'user_id_str'              => $row[13] ?? null,
                 'username'                 => $row[14] ?? null,
                 'label'                    => $row[15] ?? null,
-            ]);
+            ];
+
+            // Batch insert every 500 rows to prevent Vercel execution timeout (10s limit)
+            if (count($batch) >= 500) {
+                Dataset::insert($batch);
+                $batch = [];
+            }
+        }
+
+        // Insert remaining rows
+        if (count($batch) > 0) {
+            Dataset::insert($batch);
         }
 
         fclose($handle);
