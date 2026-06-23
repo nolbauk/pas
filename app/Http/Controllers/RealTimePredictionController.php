@@ -124,37 +124,40 @@ class RealTimePredictionController extends Controller
             }
             $bias = -$rho; // In libsvm, decision = w·x - rho, so b = -rho
 
-            // Parse support vectors and their alpha coefficients
-            // Format: alpha_coef index1:value1 index2:value2 ...
-            $svLines = [];
-            $inSV = false;
-            foreach (explode("\n", $modelText) as $line) {
-                $line = trim($line);
-                if ($line === 'SV') {
-                    $inSV = true;
-                    continue;
-                }
-                if ($inSV && $line !== '') {
-                    $svLines[] = $line;
-                }
-            }
-
             // Compute w = sum(alpha_i * sv_i) for linear kernel
             $vocabSize = count($vectorizer->getVocabulary());
             $w = array_fill(0, $vocabSize, 0.0);
 
-            foreach ($svLines as $svLine) {
-                $parts = preg_split('/\s+/', $svLine);
-                $alpha = (float) $parts[0];
-                for ($i = 1; $i < count($parts); $i++) {
-                    if (strpos($parts[$i], ':') !== false) {
-                        [$idx, $val] = explode(':', $parts[$i]);
-                        $idx = (int) $idx - 1; // libsvm is 1-indexed
-                        if ($idx >= 0 && $idx < $vocabSize) {
-                            $w[$idx] += $alpha * (float) $val;
+            // Parse support vectors and their alpha coefficients efficiently
+            // Format: alpha_coef index1:value1 index2:value2 ...
+            $inSV = false;
+            $token = strtok($modelText, "\n");
+            
+            while ($token !== false) {
+                $line = trim($token);
+                if (!$inSV) {
+                    if ($line === 'SV') {
+                        $inSV = true;
+                    }
+                } else {
+                    if ($line !== '') {
+                        // Use fast string functions instead of regex
+                        $parts = explode(' ', preg_replace('/\s+/', ' ', $line)); // Normalize spaces first
+                        $alpha = (float) $parts[0];
+                        $partCount = count($parts);
+                        
+                        for ($i = 1; $i < $partCount; $i++) {
+                            if (strpos($parts[$i], ':') !== false) {
+                                $idxVal = explode(':', $parts[$i]);
+                                $idx = (int) $idxVal[0] - 1; // libsvm is 1-indexed
+                                if ($idx >= 0 && $idx < $vocabSize) {
+                                    $w[$idx] += $alpha * (float) $idxVal[1];
+                                }
+                            }
                         }
                     }
                 }
+                $token = strtok("\n"); // Get next line
             }
 
             // Compute f(x) = w·x + b (where b = -rho)
@@ -200,8 +203,8 @@ class RealTimePredictionController extends Controller
                 'class_pos'  => $classForPositiveFx,
                 'class_neg'  => $classForNegativeFx,
             ];
-        } catch (\Exception $e) {
-            $svmDecision = ['error' => $e->getMessage()];
+        } catch (\Throwable $e) {
+            $svmDecision = ['error' => 'Gagal membongkar logika SVM: ' . $e->getMessage()];
         }
 
         // Load stats to get TF-IDF weights for the breakdown
